@@ -3,12 +3,9 @@
 #include <vector>
 #include <iostream>
 #include <string>
-#include <functional>
-#include <algorithm>
 #include <iterator>
 #include <fstream>
 #include <stdexcept>
-#include <map>
 #include <list>
 #include <set>
 #include <numeric>
@@ -45,29 +42,6 @@ struct Matrix
         , height(height)
     {
         vals.reserve(width * height);
-    }
-
-    set<pair<unsigned, unsigned>> getNeibs(unsigned x, unsigned y) const
-    {
-        set<pair<unsigned, unsigned>> neibs;
-        if (hasPoint(x, y - 1))
-        {
-            neibs.emplace(x, y - 1);
-        }
-        if (hasPoint(x + 1, y))
-        {
-            neibs.emplace(x + 1, y);
-        }
-        if (hasPoint(x, y + 1))
-        {
-            neibs.emplace(x, y + 1);
-        }
-        if (hasPoint(x - 1, y))
-        {
-            neibs.emplace(x - 1, y);
-        }
-
-        return neibs;
     }
 
     Val & operator () (unsigned x, unsigned y)
@@ -133,6 +107,50 @@ Matrix readMatrix(istream & in)
     return mtx;
 }
 
+void fillScore(Matrix & mtx)
+{
+    auto current = Point{ 0, 0 };
+    mtx(0, 0).score = mtx(0, 0).weight;
+
+    for (unsigned y = 0; y < mtx.height; ++y)
+    {
+        for (unsigned x = 0; x < mtx.width; ++x)
+        {
+            if (mtx.hasPoint(x + 1, y) && (mtx(x + 1, y).score >(mtx(x, y).score + mtx(x + 1, y).weight)))
+            {
+                mtx(x + 1, y).score = mtx(x, y).score + mtx(x + 1, y).weight;
+                mtx(x + 1, y).from = { x, y };
+            }
+
+            if (mtx.hasPoint(x, y + 1) && (mtx(x, y + 1).score >(mtx(x, y).score + mtx(x, y + 1).weight)))
+            {
+                mtx(x, y + 1).score = mtx(x, y).score + mtx(x, y + 1).weight;
+                mtx(x, y + 1).from = { x, y };
+            }
+        }
+    }
+}
+
+struct Result
+{
+    int sum = 0;
+    list<Point> path;
+};
+
+Result calcResult(Matrix & mtx)
+{
+    Result res;
+    Point curr = { mtx.width - 1, mtx.height - 1 };
+    while (mtx.hasPoint(curr.x, curr.y))
+    {
+        res.sum += mtx(curr.x, curr.y).weight;
+        res.path.emplace_front(curr);
+        curr = mtx(curr.x, curr.y).from;
+    }
+
+    return move(res);
+}
+
 int main()
 {
     ifstream in("input.txt");
@@ -141,39 +159,11 @@ int main()
     try
     {
         auto mtx = readMatrix(in);
-        auto current = Point{ 0, 0 };
-        mtx(0, 0).score = mtx(0, 0).weight;
+        fillScore(mtx);
+        auto res = calcResult(mtx);
 
-        for (unsigned y = 0; y < mtx.height; ++y)
-        {
-            for (unsigned x = 0; x < mtx.width; ++x)
-            {
-                if (mtx.hasPoint(x + 1, y) && (mtx(x + 1, y).score > (mtx(x, y).score + mtx(x + 1, y).weight)))
-                {
-                    mtx(x + 1, y).score = mtx(x, y).score + mtx(x + 1, y).weight;
-                    mtx(x + 1, y).from = { x, y };
-                }
-
-                if (mtx.hasPoint(x, y + 1) && (mtx(x, y + 1).score > (mtx(x, y).score + mtx(x, y + 1).weight)))
-                {
-                    mtx(x, y + 1).score = mtx(x, y).score + mtx(x, y + 1).weight;
-                    mtx(x, y + 1).from = { x, y };
-                }
-            }
-        }
-
-        int sum = 0;
-        list<Point> path;
-        Point curr = { mtx.width - 1, mtx.height - 1 };
-        while (mtx.hasPoint(curr.x, curr.y))
-        {
-            sum += mtx(curr.x, curr.y).weight;
-            path.emplace_front(curr);
-            curr = mtx(curr.x, curr.y).from;
-        }
-
-        out << sum << endl;
-        for (auto item : path)
+        out << res.sum << endl;
+        for (auto item : res.path)
         {
             out << item.y + 1 << " " << item.x + 1<< endl;
         }
