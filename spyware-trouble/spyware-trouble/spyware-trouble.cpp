@@ -96,7 +96,7 @@ Matrix readMatrix(istream & in)
     auto lineOfEmptyPoints = vector<Val>(mtx.width, Val());
 
     copy(lineOfEmptyPoints.begin(), lineOfEmptyPoints.end(), back_inserter(mtx.vals));
-    while (!in.eof())
+    for (int i = 0; i < height && !in.eof(); ++i)
     {
         mtx.vals.push_back(Val());
         {
