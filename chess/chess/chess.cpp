@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <functional>
 #include <iterator>
+#include <list>
+#include <queue>
 
 using namespace std;
 
@@ -15,6 +17,17 @@ istringstream getLineStrm(istream & in)
     getline(in, str);
     return istringstream(str);
 }
+
+struct Point
+{
+    Point() = default;
+    Point(size_t x, size_t y)
+        :x(x), y(y)
+    {}
+
+    size_t x = std::numeric_limits<size_t>::max();
+    size_t y = std::numeric_limits<size_t>::max();
+};
 
 enum Item
 {
@@ -61,6 +74,8 @@ struct Data
 
     vector<Item> vals;
     size_t width, height;
+    vector<pair<Point, Item>> enemies;
+    Point start;
 };
 
 Data readData(istream & in)
@@ -83,7 +98,19 @@ Data readData(istream & in)
         {
             if (s >> ch)
             {
-                d.vals.push_back(Item(ch));
+                auto item = Item(ch);
+                auto currPoint = Point(j, i);
+                if (item == Item::Bishop || item == Item::Knight || item == Item::Rook)
+                {
+                    d.enemies.push_back({ currPoint, item });
+                }
+
+                if (item == Item::King)
+                {
+                    d.start = currPoint;
+                }
+
+                d.vals.push_back(item);
                 ++j;
             }
         }
@@ -97,16 +124,17 @@ Data readData(istream & in)
     return d;
 }
 
+struct SearchState
+{
+    Point p;
+    size_t steps = 0;
+    list<pair<Point, Item>> enemies;
+};
+
 void printStepsCount(Data & d, ostream & out)
 {
-    for (size_t i = 0; i < d.height; ++i)
-    {
-        for (size_t j = 0; j < d.width; ++j)
-        {
-            out << char(d(j, i));
-        }
-        out << endl;
-    }
+    queue<SearchState> q;
+    q.push({ d.start, 0, list<pair<Point, Item>>(d.enemies.begin(), d.enemies.end()) });
 }
 
 int main()
