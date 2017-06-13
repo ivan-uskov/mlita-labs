@@ -29,7 +29,7 @@ struct Matrix3D
         , v(mX * mY * mZ, defaultValue)
     {}
 
-    T operator () (size_t x, size_t y, size_t z) const
+    typename std::vector<T>::reference operator () (size_t x, size_t y, size_t z)
     {
         auto pos = getPos(x, y, z);
         if (pos >= v.size())
@@ -37,7 +37,18 @@ struct Matrix3D
             throw std::logic_error("try to access undefined point " + std::to_string(x) + " " + std::to_string(y) + " " + std::to_string(z));
         }
 
-        return T(v[pos]);
+        return v[pos];
+    }
+
+    typename std::vector<T>::const_reference operator () (size_t x, size_t y, size_t z) const
+    {
+        auto pos = getPos(x, y, z);
+        if (pos >= v.size())
+        {
+            throw std::logic_error("try to access undefined point " + std::to_string(x) + " " + std::to_string(y) + " " + std::to_string(z));
+        }
+
+        return v[pos];
     }
 
     size_t hasPoint(size_t x, size_t y, size_t z) const

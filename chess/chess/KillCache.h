@@ -59,7 +59,7 @@ struct KillCache : public Matrix3D<bool, false>
         {
             if (d.hasPoint(point))
             {
-                v[getPos(point.x, point.y, i)] = true;
+                (*this)(point.x, point.y, i) = true;
             }
         }
     }
