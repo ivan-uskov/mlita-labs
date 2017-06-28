@@ -21,17 +21,19 @@ namespace
         {
             auto type = Type(ch);
             auto currPoint = Point(x, y);
-            if (type == Type::Bishop || type == Type::Knight || type == Type::Rook)
-            {
-                d.enemies.push_back({ type, currPoint });
-            }
 
             if (type == Type::King)
             {
                 d.start = currPoint;
+                type = Type::Free;
             }
 
-            d(currPoint.x, currPoint.y) = type;
+            d(currPoint.x, currPoint.y) = { type, 0 };
+            if (isEnemy(type))
+            {
+                d(currPoint.x, currPoint.y).id = d.enemies.size();
+                d.enemies.push_back({ type, currPoint });
+            }
             ++x;
         }
 

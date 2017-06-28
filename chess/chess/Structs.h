@@ -1,22 +1,32 @@
 #pragma once
 
-struct Point
+template <typename T>
+struct BasePoint
 {
-    Point() = default;
-    Point(size_t x, size_t y)
+    BasePoint() = default;
+    BasePoint(T x, T y)
         :x(x), y(y)
     {}
 
-    Point(std::initializer_list<size_t> l)
+    BasePoint(std::initializer_list<T> l)
     {
         auto it = l.begin();
         x = *(it++);
         y = *it;
     }
 
-    size_t x = std::numeric_limits<size_t>::max();
-    size_t y = std::numeric_limits<size_t>::max();
+    T x = std::numeric_limits<T>::max();
+    T y = std::numeric_limits<T>::max();
 };
+
+using Point = BasePoint<size_t>;
+using SignedPoint = BasePoint<int>;
+
+template <typename LT, typename RT>
+LT operator + (const LT & l, const RT & r)
+{
+    return LT(l.x + r.x, l.y + r.y);
+}
 
 
 template <typename T, T defaultValue>
@@ -65,14 +75,24 @@ struct Matrix3D
     size_t mX, mY, mZ;
 };
 
-template <typename T, T defaultValue>
+template <typename T>
 struct Matrix2D
 {
     Matrix2D(size_t mX, size_t mY)
         : mX(mX)
         , mY(mY)
-        , v(mX * mY, defaultValue)
+        , v(mX * mY, T())
     {}
+
+    T & operator () (const Point & p)
+    {
+        return (*this)(p.x, p.y);
+    }
+
+    const T & operator () (const Point & p) const
+    {
+        return (*this)(p.x, p.y);
+    }
 
     T & operator () (size_t x, size_t y)
     {
@@ -98,12 +118,12 @@ struct Matrix2D
 
     size_t hasPoint(size_t x, size_t y) const
     {
-        return getPos(x, y) < v.size();
+        return x < width() && y < height();
     }
 
     size_t hasPoint(const Point & p) const
     {
-        return getPos(p.x, p.y) < v.size();
+        return hasPoint(p.x, p.y);
     }
 
     size_t getPos(size_t x, size_t y) const
@@ -124,14 +144,14 @@ struct Matrix2D
     std::vector<Point> getClosest(const Point & p)
     {
         auto possibleNeibs = std::vector<Point>{
-            { x, y - 1 },
-            { x, y + 1 },
-            { x + 1, y },
-            { x - 1, y },
-            { x - 1, y - 1 },
-            { x - 1, y + 1 },
-            { x + 1, y - 1 },
-            { x + 1, y + 1 }
+            { p.x, p.y - 1 },
+            { p.x, p.y + 1 },
+            { p.x + 1, p.y },
+            { p.x - 1, p.y },
+            { p.x - 1, p.y - 1 },
+            { p.x - 1, p.y + 1 },
+            { p.x + 1, p.y - 1 },
+            { p.x + 1, p.y + 1 }
         };
         std::vector<Point> neibs;
         neibs.reserve(8);

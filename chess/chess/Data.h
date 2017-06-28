@@ -16,12 +16,25 @@ struct Enemy
     Point point;
 };
 
+struct DataItem
+{
+    DataItem() = default;
+    DataItem(Type t, size_t id)
+        : type(t)
+        , id(id)
+    {}
+
+    Type type;
+    size_t id;
+};
+
+bool isEnemy(Type t);
 constexpr size_t MAX_ENEMIES = 14;
 
-struct Data : public Matrix2D<Type, Type::Free>
+struct Data : public Matrix2D<DataItem>
 {
     Data(size_t width, size_t height)
-        : Matrix2D<Type, Type::Free>(width, height)
+        : Matrix2D<DataItem>(width, height)
     {
         enemies.reserve(MAX_ENEMIES);
     }
