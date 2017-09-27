@@ -1,11 +1,7 @@
 #include "stdafx.h"
 #include <iostream>
 #include <fstream>
-#include <sstream>
-#include <vector>
-#include <algorithm>
-#include <functional>
-#include <iterator>
+#include <math.h>
 
 using namespace std;
 
@@ -20,33 +16,49 @@ size_t readDigitsCount(istream & in)
     return digitsCount;
 }
 
-size_t count(size_t digitsCount, size_t sumValue)
+bool in(long num, long min, long max)
 {
-    if (digitsCount == 0)
+    return min <= num && num <= max;
+}
+
+size_t f(long i, long j, long k)
+{
+    if (k == 0 && j > 0)
     {
-        return sumValue == 0 ? 1 : 0;
+        return 0;
     }
 
-    size_t res = 0;
-    for (size_t j = 0; j <= min(size_t(9), sumValue); ++j)
+    if (i == 1)
     {
-        res += count(digitsCount - 1, sumValue - j);
+        return j == k && in(j, 0, 9) ? 1 : 0;
     }
 
-    return res;
-};
+    if (j == k && k == 0)
+    {
+        return 1;
+    }
+
+    return f(i - 1, j, k - j) + (j == 0 ? 0 : f(i - 1, j - 1, k - j)) + (j == 9 ? 0 : f(i - 1, j + 1, k - j));
+}
 
 size_t getSuperLuckyTicketsCount(size_t digitsCount)
 {
-    size_t res = 0;
-    for (size_t sumValue = 0; sumValue <= digitsCount * 9; ++sumValue)
+    if (digitsCount == 0)
     {
-        auto d = count(digitsCount, sumValue);
-        cout << sumValue << " : " << d << endl;
-        res += d * d;
+        return 0;
     }
 
-    return res;
+    size_t count = 0;
+    for (int digitsSum = 0; digitsSum <= long(digitsCount) * 9; ++digitsSum)
+    {
+        for (int lastDigit = 0; lastDigit <= 9; ++lastDigit)
+        {
+            size_t numbersCount  = f(digitsCount, lastDigit, digitsSum);
+            count += numbersCount * (numbersCount + (lastDigit == 0 ? 0 : f(digitsCount, lastDigit - 1, digitsSum)) + (lastDigit == 9 ? 0 : f(digitsCount, lastDigit + 1, digitsSum)));
+        }
+    }
+
+    return count;
 }
 
 int main()
@@ -56,7 +68,7 @@ int main()
 
     try
     {
-        cout << getSuperLuckyTicketsCount(readDigitsCount(cin)) << endl;
+        out << getSuperLuckyTicketsCount(readDigitsCount(in)) << endl;
     }
     catch (exception const& e)
     {
