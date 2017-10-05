@@ -12,6 +12,8 @@
     <ClInclude Include="stdafx.h">
       <Filter>system</Filter>
     </ClInclude>
+    <ClInclude Include="BigInteger.h" />
+    <ClInclude Include="Cache.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
