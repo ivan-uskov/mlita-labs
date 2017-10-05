@@ -15,7 +15,6 @@ struct CacheItem
 };
 
 typedef Matrix3D<CacheItem> Cache;
-
 unique_ptr<Cache> mCache;
 
 size_t readDigitsCount(istream & in)
@@ -40,23 +39,27 @@ size_t f(long i, long j, long k)
     {
         return 0;
     }
-
-    if (k == 0 && j > 0)
+    else if (k == 0 && j > 0)
     {
         return 0;
     }
-
-    if (i == 1)
+    else if (i == 1)
     {
         return j == k && in(j, 0, 9) ? 1 : 0;
     }
-
-    if (j == k && k == 0)
+    else if (j == k && k == 0)
     {
         return 1;
     }
 
-    return f(i - 1, j, k - j) + (j == 0 ? 0 : f(i - 1, j - 1, k - j)) + (j == 9 ? 0 : f(i - 1, j + 1, k - j));
+    auto & cacheItem = mCache->operator()(size_t(i), size_t(j), size_t(k));
+    if (!cacheItem.initialized)
+    {
+        cacheItem.initialized = true;
+        cacheItem.val = f(i - 1, j, k - j) + (j == 0 ? 0 : f(i - 1, j - 1, k - j)) + (j == 9 ? 0 : f(i - 1, j + 1, k - j));
+    }
+
+    return cacheItem.val;
 }
 
 size_t getMaxDigitsSum(uint8_t lastDigit, size_t digitsCount)
@@ -78,7 +81,7 @@ size_t getSuperLuckyTicketsCount(size_t digitsCount)
         return 0;
     }
 
-    mCache.reset(new Cache(digitsCount, 9, digitsCount * 9, CacheItem()));
+    mCache.reset(new Cache(digitsCount + 1, 10, digitsCount * 9 + 1, CacheItem()));
 
     size_t count = 0;
 
@@ -87,8 +90,8 @@ size_t getSuperLuckyTicketsCount(size_t digitsCount)
         auto maxDigitsSum = getMaxDigitsSum(lastDigit, digitsCount);
         for (size_t digitsSum = getMinDigitsSum(lastDigit, digitsCount); digitsSum <= maxDigitsSum; ++digitsSum)
         {
-            size_t numbersCount = f(digitsCount, lastDigit, digitsSum);
-            count += numbersCount *(numbersCount + (lastDigit == 0 ? 0 : f(digitsCount, lastDigit - 1, digitsSum)) + (lastDigit == 9 ? 0 : f(digitsCount, lastDigit + 1, digitsSum)));
+            size_t numbersCount = f(long(digitsCount), lastDigit, long(digitsSum));
+            count += numbersCount * (numbersCount + (lastDigit == 0 ? 0 : f(long(digitsCount), lastDigit - 1, long(digitsSum))) + (lastDigit == 9 ? 0 : f(long(digitsCount), lastDigit + 1, long(digitsSum))));
         }
     }
 
@@ -112,4 +115,3 @@ int main()
 
     return 0;
 }
-
