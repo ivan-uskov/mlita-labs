@@ -105,7 +105,7 @@ int main()
 
     try
     {
-        cout << getSuperLuckyTicketsCount(readDigitsCount(cin)) << endl;
+        out << getSuperLuckyTicketsCount(readDigitsCount(in)) << endl;
     }
     catch (exception const& e)
     {
