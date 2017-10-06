@@ -10,7 +10,7 @@ using namespace std;
 
 struct CacheItem
 {
-    size_t val = 0;
+    BigInteger val = 0;
     bool initialized = false;
 };
 
@@ -33,7 +33,7 @@ bool in(long num, long min, long max)
     return min <= num && num <= max;
 }
 
-size_t f(long i, long j, long k)
+BigInteger f(long i, long j, long k)
 {
     if (k < 0)
     {
@@ -74,7 +74,7 @@ size_t getMinDigitsSum(uint8_t lastDigit, size_t digitsCount)
     return ((2 * (lastDigit - progressiveCount + 1) + (progressiveCount - 1)) * progressiveCount) / 2;
 }
 
-size_t getSuperLuckyTicketsCount(size_t digitsCount)
+BigInteger getSuperLuckyTicketsCount(size_t digitsCount)
 {
     if (digitsCount == 0)
     {
@@ -83,14 +83,14 @@ size_t getSuperLuckyTicketsCount(size_t digitsCount)
 
     mCache.reset(new Cache(digitsCount + 1, 10, digitsCount * 9 + 1, CacheItem()));
 
-    size_t count = 0;
+    BigInteger count = 0;
 
     for (uint8_t lastDigit = 0; lastDigit <= 9; ++lastDigit)
     {
         auto maxDigitsSum = getMaxDigitsSum(lastDigit, digitsCount);
         for (size_t digitsSum = getMinDigitsSum(lastDigit, digitsCount); digitsSum <= maxDigitsSum; ++digitsSum)
         {
-            size_t numbersCount = f(long(digitsCount), lastDigit, long(digitsSum));
+            BigInteger numbersCount = f(long(digitsCount), lastDigit, long(digitsSum));
             count += numbersCount * (numbersCount + (lastDigit == 0 ? 0 : f(long(digitsCount), lastDigit - 1, long(digitsSum))) + (lastDigit == 9 ? 0 : f(long(digitsCount), lastDigit + 1, long(digitsSum))));
         }
     }
