@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="system">
+      <UniqueIdentifier>{3d593ba5-e48e-4c8d-897e-1e0f9169e280}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="targetver.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>system</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="digits_count.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
