@@ -204,7 +204,7 @@ BigInteger operator - (BigInteger const& lhs, BigInteger const& rhs)
 bool operator < (BigInteger const& lhs, BigInteger const& rhs)
 {
     auto less = [&]() {
-        for (size_t i = lhs.mData.size() - 1; i >= 0; --i)
+        for (long i = long(lhs.mData.size() - 1); i >= 0; --i)
         {
             if (lhs.mData[i] == rhs.mData[i])
             {
@@ -217,7 +217,7 @@ bool operator < (BigInteger const& lhs, BigInteger const& rhs)
         return false;
     };
 
-    return (lhs.mData.size() == rhs.mData.size()) && !lhs.mData.empty() ? less() : lhs.mData.size() < rhs.mData.size();
+    return (lhs.mData.size() == rhs.mData.size()) ? (lhs.mData.empty() ? true : less()) : lhs.mData.size() < rhs.mData.size();
 }
 
 bool operator <= (BigInteger const& lhs, BigInteger const& rhs)
@@ -326,9 +326,11 @@ std::pair<BigInteger, BigInteger> divide(const BigInteger & lhs, const BigIntege
     auto prev = BigInteger();
     auto amount = lhs;
     auto fullAmount = BigInteger(prev).append(amount);
+    auto isFirst = true;
     while (rhs <= fullAmount)
     {
-        auto curr = amount.splitFront(1);
+        auto curr = amount.splitFront(isFirst ? rhs.mData.size() : 1);
+        isFirst = false;
         prev.append(curr.first);
         amount = curr.second;
         while (prev < rhs)
